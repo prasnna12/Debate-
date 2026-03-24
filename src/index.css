@@ -252,3 +252,54 @@ h1, h2, h3, h4, .outfit {
   .btn-primary { width: 100%; }
   h2 { font-size: 2rem !important; }
 }
+/* Slide System */
+.slide-container {
+  position: relative;
+  width: 100%;
+  min-height: 80vh;
+}
+
+.slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(50px);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide.active {
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  z-index: 10;
+}
+
+.slide.prev {
+  transform: translateX(-50px);
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Auth Specific */
+.btn-google {
+  background: white;
+  color: #1f2937;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-google:hover {
+  background: #f9fafb;
+}
