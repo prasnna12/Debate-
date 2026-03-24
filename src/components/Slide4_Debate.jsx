@@ -86,21 +86,21 @@ const Slide4_Debate = ({ topic, bioData, language, isActive }) => {
     } else {
       const expansionTemplates = {
         en: [
-          ` The life of ${bioData.fullName} serves as a profound blueprint for future generations.`,
-          ` Their journey from ${bioData.birthPlace} to achieving ${bioData.majorAchievements} is a testament to human resilience.`,
-          ` We must look at the events of ${bioData.importantYears} as a guiding light for our endeavors.`,
+          ` The life of ${localizedBio?.fullName || topic} serves as a profound blueprint for future generations.`,
+          ` Their journey from ${localizedBio?.birthPlace || 'the past'} to achieving ${localizedBio?.majorAchievements || 'greatness'} is a testament to human resilience.`,
+          ` We must look at the events of ${localizedBio?.importantYears || 'history'} as a guiding light for our endeavors.`,
           ` Their contribution remains etched in the annals of history forever.`
         ],
         hi: [
-          ` ${bioData.fullName} का जीवन आने वाली पीढ़ियों के लिए एक गहन खाका पेश करता है।`,
-          ` ${bioData.birthPlace} से लेकर ${bioData.majorAchievements} तक की उनकी यात्रा मानवीय लचीलापन का प्रमाण है।`,
-          ` हमें ${bioData.importantYears} की घटनाओं को अपने प्रयासों के लिए एक मार्गदर्शक प्रकाश के रूप में देखना चाहिए।`,
+          ` ${localizedBio?.fullName || topic} का जीवन आने वाली पीढ़ियों के लिए एक गहन खाका पेश करता है।`,
+          ` ${localizedBio?.birthPlace || 'जन्मभूमि'} से लेकर ${localizedBio?.majorAchievements || 'उपलब्धियों'} तक की उनकी यात्रा मानवीय लचीलापन का प्रमाण है।`,
+          ` हमें ${localizedBio?.importantYears || 'इतिहास'} की घटनाओं को अपने प्रयासों के लिए एक मार्गदर्शक प्रकाश के रूप में देखना चाहिए।`,
           ` उनका योगदान हमेशा के लिए इतिहास के पन्नों में दर्ज रहेगा।`
         ],
         or: [
-          ` ${bioData.fullName} ଙ୍କ ଜୀବନ ଆଗାମୀ ପିଢି ପାଇଁ ଏକ ଗଭୀର ନକ୍ସା ଭାବରେ କାର୍ଯ୍ୟ କରେ |`,
-          ` ${bioData.birthPlace} ରୁ ${bioData.majorAchievements} ହାସଲ ପର୍ଯ୍ୟନ୍ତ ସେମାନଙ୍କର ଯାତ୍ରା ମାନବିକ ସହନଶୀଳତାର ପ୍ରମାଣ |`,
-          ` ଆମେ ଆମର ପ୍ରୟାସ ପାଇଁ ${bioData.importantYears} ର ଘଟଣାଗୁଡ଼ିକୁ ଏକ ମାର୍ଗଦର୍ଶକ ଆଲୋକ ଭାବରେ ଦେଖିବା ଜରୁରୀ |`,
+          ` ${localizedBio?.fullName || topic} ଙ୍କ ଜୀବନ ଆଗାମୀ ପିଢି ପାଇଁ ଏକ ଗଭୀର ନକ୍ସା ଭାବରେ କାର୍ଯ୍ୟ କରେ |`,
+          ` ${localizedBio?.birthPlace || 'ଜନ୍ମସ୍ଥାନ'} ରୁ ${localizedBio?.majorAchievements || 'ସଫଳତା'} ହାସଲ ପର୍ଯ୍ୟନ୍ତ ସେମାନଙ୍କର ଯାତ୍ରା ମାନବିକ ସହନଶୀଳତାର ପ୍ରମାଣ |`,
+          ` ଆମେ ଆମର ପ୍ରୟାସ ପାଇଁ ${localizedBio?.importantYears || 'ଇତିହାସ'} ର ଘଟଣାଗୁଡ଼ିକୁ ଏକ ମାର୍ଗଦର୍ଶକ ଆଲୋକ ଭାବରେ ଦେଖିବା ଜୁରୁରୀ |`,
           ` ସେମାନଙ୍କର ଅବଦାନ ଇତିହାସର ପୃଷ୍ଠାରେ ଚିରଦିନ ପାଇଁ ଲିପିବଦ୍ଧ ହୋଇ ରହିବ |`
         ]
       };
@@ -116,18 +116,64 @@ const Slide4_Debate = ({ topic, bioData, language, isActive }) => {
     }
   };
 
+  const [localizedBio, setLocalizedBio] = useState(null);
+
+  // Localize bioData before fetching speeches to ensure 100% native context
+  useEffect(() => {
+    if (!isActive || !bioData) return;
+    
+    // If already in target language (rough check), skip
+    if (debateLanguage === 'en') {
+        setLocalizedBio(bioData);
+        return;
+    }
+
+    const localize = async () => {
+      try {
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        const targetLabel = debateLanguage === 'hi' ? 'Hindi (Devanagari)' : 'Odia (Odia Script)';
+        const prompt = `Translate/Transliterate these profile fields into ${targetLabel}. 
+        Return ONLY valid JSON. No English values except numbers.
+        Fields: ${JSON.stringify(bioData)}`;
+        
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: { response_mime_type: "application/json", temperature: 0.1 }
+          })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          const rawText = json.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+          setLocalizedBio(JSON.parse(rawText));
+        } else {
+          setLocalizedBio(bioData); // Fallback to raw if API fails
+        }
+      } catch (e) {
+        setLocalizedBio(bioData);
+      }
+    };
+    localize();
+  }, [isActive, bioData, debateLanguage]);
+
   const fetchSpeeches = async (retryCount = 0) => {
-    if (!isActive || !topic || !bioData) return;
+    if (!isActive || !topic || !localizedBio) return;
     setAiLoading(true);
     setError(null);
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      
+      const targetScript = debateLanguage === 'hi' ? 'HINDI (DEVANAGARI SCRIPT)' : debateLanguage === 'or' ? 'ODIA (ODIA SCRIPT)' : 'ENGLISH';
       const prompt = `Generate exactly 5 unique speeches about ${topic}.
-Language: ${debateLanguage === 'hi' ? 'Hindi (Devanagari Script)' : debateLanguage === 'or' ? 'Odia (Odia Script)' : 'English'}.
-Length: Each speech MUST be approximately ${targetWords} words.
-Context: ${bioData.fullName}, born ${bioData.birthDate} in ${bioData.birthPlace}. Achievement: ${bioData.majorAchievements}. Key Year: ${bioData.importantYears}.
-Format: Return ONLY valid JSON: {"speeches": ["text1", "text2", "text3", "text4", "text5"]}
-CRITICAL: ALL text MUST be in the requested language script. No mixing languages.`;
+Language: ${targetScript}.
+Length: Each speech MUST be exactly ${targetWords} words.
+Context: ${localizedBio.fullName}, ${localizedBio.majorAchievements}.
+CRITICAL: Use ONLY ${targetScript}. 
+DO NOT USE A SINGLE ENGLISH WORD. EXCLUSIVELY NATIVE SCRIPT.
+IF AN ENGLISH WORD IS USED, THE OUTPUT IS REJECTED.
+Format: Return ONLY valid JSON: {"speeches": ["text1", "text2", "text3", "text4", "text5"]}`;
 
       const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
@@ -137,20 +183,24 @@ CRITICAL: ALL text MUST be in the requested language script. No mixing languages
         })
       });
       
-      if (!res.ok) {
-        throw new Error(`API Error: ${res.status}`);
-      }
+      if (!res.ok) throw new Error(`API Error: ${res.status}`);
       
       const data = await res.json();
       let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!rawText) throw new Error('Empty AI response');
       
-      // Clean potential markdown code blocks if AI included them
       rawText = rawText.replace(/```json|```/g, '').trim();
-      
       const parsed = JSON.parse(rawText);
       if (!parsed.speeches || parsed.speeches.length < 5) throw new Error('Incomplete Speech Data');
       
+      // Strict Validation: Reject if ANY English letters remain (A-Z)
+      if (debateLanguage !== 'en') {
+          const hasEnglish = parsed.speeches.some(s => /[a-zA-Z]/.test(s));
+          if (hasEnglish && retryCount < 2) {
+              return fetchSpeeches(retryCount + 1);
+          }
+      }
+
       const processed = parsed.speeches.map(s => enforceWordCount(s, targetWords));
       setSpeeches(processed);
     } catch (e) {
@@ -159,9 +209,9 @@ CRITICAL: ALL text MUST be in the requested language script. No mixing languages
       
       setError(t.errorMsg);
       const baseTemplates = {
-        en: `Respected audience, the legacy of ${bioData.fullName} remains a beacon of hope. Born in ${bioData.birthPlace}, their work in ${bioData.importantYears} and ${bioData.majorAchievements} redefined our history.`,
-        hi: `आदरणीय श्रोताओं, ${bioData.fullName} की विरासत आशा की एक किरण बनी हुई है। ${bioData.birthPlace} में जन्मे, ${bioData.importantYears} में उनके कार्य और ${bioData.majorAchievements} ने हमारे इतिहास को फिर से परिभाषित किया।`,
-        or: `ସମ୍ମାନିତ ଶ୍ରୋତାମାନେ, ${bioData.fullName} ଙ୍କର ଐତିହ୍ୟ ଆମ ପାଇଁ ଏକ ଆଶାର କିରଣ | ${bioData.birthPlace} ରେ ଜନ୍ମିତ, ${bioData.importantYears} ମସିହାରେ ତାଙ୍କର କାର୍ଯ୍ୟ ଏବଂ ${bioData.majorAchievements} ଆମ ଇତିହାସକୁ ପୁନର୍ବାର ବ୍ୟାଖ୍ୟା କରିଥିଲା |`
+        en: `Respected audience, the legacy of ${localizedBio.fullName} remains a beacon of hope.`,
+        hi: `आदरणीय श्रोताओं, ${localizedBio.fullName} की विरासत आशा की एक किरण बनी हुई है।`,
+        or: `ସମ୍ମାନିତ ଶ୍ରୋତାମାନେ, ${localizedBio.fullName} ଙ୍କର ଐତିହ୍ୟ ଆମ ପାଇଁ ଏକ ଆଶାର କିରଣ |`
       };
       const base = baseTemplates[debateLanguage] || baseTemplates.en;
       const fallbackArr = Array(5).fill(0).map((_, i) => enforceWordCount(`${i+1}. ${base}`, targetWords));
@@ -172,10 +222,10 @@ CRITICAL: ALL text MUST be in the requested language script. No mixing languages
   };
 
   useEffect(() => {
-    if (isActive && topic && bioData && speeches.length === 0 && !aiLoading) {
+    if (isActive && topic && localizedBio && speeches.length === 0 && !aiLoading) {
       fetchSpeeches();
     }
-  }, [isActive, topic, debateLanguage, targetWords, bioData]);
+  }, [isActive, topic, debateLanguage, targetWords, localizedBio]);
   const toggleSpeech = () => {
     if (isSpeaking) {
       window.speechSynthesis.cancel();

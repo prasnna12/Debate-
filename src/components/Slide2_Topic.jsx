@@ -86,34 +86,45 @@ const Slide2_Topic = ({ language, onGenerate }) => {
     let aiData = null;
     if (apiKey && (!wikiData || !wikiData.extract || wikiData.extract.length < 100)) {
        try {
-         const prompt = `Provide a comprehensive JSON profile for: "${normalizedQuery}". Keys: fullName, description, birthDate, birthPlace, fatherName, motherName, importantYears, majorAchievements, summary (150 words).`;
-         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+         const langLabel = language === 'hi' ? 'Hindi (Devanagari Script)' : language === 'or' ? 'Odia (Odia Script)' : 'English';
+         const prompt = `Provide a comprehensive JSON profile for: "${normalizedQuery}" in ${langLabel}.
+         CRITICAL: All values must be in ${langLabel}. No English.
+         Keys: fullName, description, birthDate, birthPlace, fatherName, motherName, importantYears, majorAchievements, summary.`;
+         
+         const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
            method: 'POST',
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({
-             contents: [{ parts: [{ text: prompt }] }],
-             generationConfig: { response_mime_type: "application/json" }
+             contents: [{ role: "user", parts: [{ text: prompt }] }],
+             generationConfig: { 
+               response_mime_type: "application/json",
+               temperature: 0.1 
+             }
            })
          });
          if (res.ok) {
            const json = await res.json();
-           aiData = JSON.parse(json.candidates[0].content.parts[0].text);
+           const rawText = json.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
+           aiData = JSON.parse(rawText);
          }
        } catch (e) { console.error(e); }
     }
 
     if (!wikiData && !aiData) return null;
 
+    // Helper to ensure we don't return English names in Hindi/Odia mode if possible
+    const finalName = aiData?.fullName || wikiData?.title || resolvedTitle;
+
     return {
-      fullName: aiData?.fullName || wikiData?.title || resolvedTitle,
+      fullName: finalName,
       summary: aiData?.summary || wikiData?.extract || '...',
       image: wikiData?.thumbnail?.source || 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&q=80&w=300&h=400',
-      description: aiData?.description || wikiData?.description || 'Historical Inspiration',
-      birthDate: aiData?.birthDate || wikiData?.description?.match(/\d+\s\w+\s\d{4}|\b\d{4}\b/)?.[0] || 'Historical Era',
-      birthPlace: aiData?.birthPlace || 'Global Legacy',
-      fatherName: aiData?.fatherName || 'Historical Record',
-      motherName: aiData?.motherName || 'Historical Record',
-      importantYears: aiData?.importantYears || wikiData?.extract?.match(/\b(18|19|20)\d{2}\b/g)?.slice(0, 4).join(', ') || 'Various Eras',
+      description: aiData?.description || wikiData?.description || (language === 'hi' ? 'ऐतिहासिक प्रेरणा' : language === 'or' ? 'ଐତିହାସିକ ପ୍ରେରଣା' : 'Historical Inspiration'),
+      birthDate: aiData?.birthDate || wikiData?.description?.match(/\d+\s\w+\s\d{4}|\b\d{4}\b/)?.[0] || '...',
+      birthPlace: aiData?.birthPlace || (language === 'hi' ? 'वैश्विक विरासत' : language === 'or' ? 'ବିଶ୍ୱସ୍ତରୀୟ ଐତିହ୍ୟ' : 'Global Legacy'),
+      fatherName: aiData?.fatherName || (language === 'hi' ? 'ऐतिहासिक रिकॉर्ड' : language === 'or' ? 'ଐତିହାସିକ ରେକର୍ଡ' : 'Historical Record'),
+      motherName: aiData?.motherName || (language === 'hi' ? 'ऐतिहासिक रिकॉर्ड' : language === 'or' ? 'ଐତିହାସିକ ରେକର୍ଡ' : 'Historical Record'),
+      importantYears: aiData?.importantYears || wikiData?.extract?.match(/\b(18|19|20)\d{2}\b/g)?.slice(0, 4).join(', ') || '...',
       majorAchievements: aiData?.majorAchievements || wikiData?.extract?.split('. ').slice(0, 3).join('. ') + '.'
     };
   };
