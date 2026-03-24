@@ -37,39 +37,46 @@ const App = () => {
     <div className="app-container animate-fade-in">
       {/* Premium Navbar */}
       <nav className="navbar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-          <div className="nav-logo" onClick={() => setCurrentSlide(user ? 2 : 1)}>
-            AI Debate Pro
-          </div>
-          {currentSlide > 1 && (
-            <button className="btn-back-global" onClick={prevSlide}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1 }}>
+          {currentSlide > 1 ? (
+            <button className="btn-ghost" onClick={prevSlide} style={{ padding: '0.6rem 1rem', borderRadius: '12px', fontSize: '0.9rem' }}>
               ← {t.back}
             </button>
+          ) : (
+            <div className="nav-logo" onClick={() => setCurrentSlide(1)}>AI Debate Pro</div>
           )}
         </div>
 
-        <div className="nav-actions">
+        {currentSlide > 1 && (
+          <div className="nav-logo" style={{ flex: 1, textAlign: 'center' }} onClick={() => setCurrentSlide(user ? 2 : 1)}>
+            AI Debate Pro
+          </div>
+        )}
+
+        <div className="nav-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
           {user ? (
-            <div className="user-badge glass-panel" style={{ 
+            <div className="glass-panel" style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '1rem', 
-              padding: '0.6rem 1.2rem', 
+              padding: '0.5rem 1rem', 
             }}>
-              <span style={{ fontSize: '1.2rem' }}>👤</span>
-              <span style={{ fontWeight: '700', color: 'white' }}>{user.email.split('@')[0]}</span>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--grad-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem' }}>
+                {user.isGoogle ? 'G' : user.email[0].toUpperCase()}
+              </div>
+              <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'white' }}>{user.name || user.email.split('@')[0]}</span>
               <button 
                 className="btn-ghost" 
                 onClick={() => { setUser(null); setCurrentSlide(1); }} 
-                style={{ padding: '0.4rem 0.8rem', borderRadius: '12px', fontSize: '0.8rem' }}
+                style={{ padding: '0.3rem 0.7rem', borderRadius: '10px', fontSize: '0.75rem', border: 'none' }}
               >
                 {t.logout}
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button className="btn-ghost" style={{ border: 'none', fontWeight: '800' }} onClick={() => setCurrentSlide(1)}>{t.login}</button>
-              <button className="btn-primary" style={{ padding: '0.7rem 1.5rem', borderRadius: '14px', fontSize: '0.9rem' }} onClick={() => setCurrentSlide(1)}>
+            <div style={{ display: 'flex', gap: '0.8rem' }}>
+              <button className="btn-ghost" style={{ border: 'none' }} onClick={() => setCurrentSlide(1)}>{t.login}</button>
+              <button className="btn-primary" style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.85rem' }} onClick={() => setCurrentSlide(1)}>
                 {t.signup}
               </button>
             </div>

@@ -45,6 +45,11 @@ const Slide1_Auth = ({ language, onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const handleGoogleLogin = () => {
+    // Mock Google Login
+    onLogin({ email: 'google.user@gmail.com', name: 'Google User', isGoogle: true });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email && password) {
@@ -90,8 +95,19 @@ const Slide1_Auth = ({ language, onLogin }) => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit" className="btn-primary" style={{ width: '100%', padding: '1.4rem' }}>
+        <button type="submit" className="btn-primary" style={{ width: '100%', padding: '1.2rem' }}>
           {isLogin ? t.signIn : t.signUpBtn}
+        </button>
+
+        <div style={{ margin: '1.5rem 0', display: 'flex', alignItems: 'center', gap: '1rem', opacity: 0.4 }}>
+          <hr style={{ flex: 1, border: '0.5px solid var(--text-muted)' }} />
+          <span style={{ fontSize: '0.8rem', fontWeight: '800' }}>OR</span>
+          <hr style={{ flex: 1, border: '0.5px solid var(--text-muted)' }} />
+        </div>
+
+        <button type="button" className="btn-google" onClick={handleGoogleLogin} style={{ width: '100%', padding: '1rem' }}>
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="G" style={{ width: '18px' }} />
+          Continue with Google
         </button>
       </form>
 

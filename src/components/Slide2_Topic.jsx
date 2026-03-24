@@ -135,22 +135,22 @@ const Slide2_Topic = ({ language, onGenerate }) => {
   };
 
   return (
-    <div className="premium-card" style={{ maxWidth: '800px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '1rem' }} className="text-gradient">{t.title}</h2>
-      <p style={{ textAlign: 'center', marginBottom: '3.5rem', fontSize: '1.2rem' }}>{t.subtitle}</p>
+    <div className="premium-card" style={{ maxWidth: '850px', margin: '0 auto' }}>
+      <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', letterSpacing: '-0.5px' }} className="text-gradient">{t.title}</h2>
+      <p style={{ textAlign: 'center', marginBottom: '4rem', fontSize: '1.1rem', fontWeight: '500' }}>{t.subtitle}</p>
 
       {loading ? (
-        <div className="loading-overlay" style={{ minHeight: '300px' }}>
+        <div className="loading-overlay" style={{ minHeight: '350px' }}>
           <div className="spinner"></div>
-          <p style={{ fontWeight: '800', fontSize: '1.1rem' }} className="text-gradient">{t.loading}</p>
+          <p style={{ fontWeight: '800', fontSize: '1.2rem', letterSpacing: '1px' }} className="text-gradient">{t.loading}</p>
         </div>
       ) : (
         <>
-          <div className="search-wrapper" style={{ margin: '0 auto 3rem', maxWidth: '600px' }}>
+          <div className="search-wrapper" style={{ margin: '0 auto 3.5rem', maxWidth: '650px' }}>
             <input 
               type="text" 
               className="input-modern"
-              style={{ textAlign: 'center', fontSize: '1.4rem', padding: '1.8rem' }}
+              style={{ textAlign: 'center', fontSize: '1.3rem', padding: '1.6rem', border: '1px solid rgba(255,255,255,0.1)' }}
               placeholder={t.placeholder}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
@@ -158,19 +158,19 @@ const Slide2_Topic = ({ language, onGenerate }) => {
             />
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginBottom: '4rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem', justifyContent: 'center', marginBottom: '4.5rem' }}>
             {t.suggestions.map(s => (
-              <button key={s} className="btn-ghost" onClick={() => { setTopic(s); }} style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', borderRadius: '15px' }}>
+              <button key={s} className="btn-ghost" onClick={() => { setTopic(s); }} style={{ padding: '0.6rem 1.4rem', fontSize: '0.9rem', borderRadius: '12px' }}>
                 {s}
               </button>
             ))}
           </div>
 
-          <button className="btn-primary" onClick={handleGenerate} style={{ width: '100%', padding: '1.5rem', fontSize: '1.3rem', borderRadius: '22px' }}>
+          <button className="btn-primary" onClick={handleGenerate} style={{ width: '100%', padding: '1.2rem', fontSize: '1.2rem' }}>
             🚀 {t.btn}
           </button>
           
-          {error && <p style={{ color: '#ef4444', marginTop: '2rem', textAlign: 'center', fontWeight: '700', fontSize: '1.1rem' }}>{error}</p>}
+          {error && <p className="animate-fade-in" style={{ color: '#fb7185', marginTop: '2.5rem', textAlign: 'center', fontWeight: '600', fontSize: '1rem' }}>{error}</p>}
         </>
       )}
     </div>

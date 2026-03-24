@@ -13,6 +13,11 @@ const Slide4_Debate = ({ topic, bioData, language, isActive }) => {
   const [countdown, setCountdown] = useState(0);
   const [scrollPos, setScrollPos] = useState(0);
 
+  // Clear speeches when settings change to ensure user sees loading state
+  useEffect(() => {
+    setSpeeches([]);
+  }, [debateLanguage, targetWords]);
+
   const t = {
     en: { 
       title: "Premium AI Speeches", 
@@ -58,25 +63,34 @@ const Slide4_Debate = ({ topic, bioData, language, isActive }) => {
     }
   }[debateLanguage] || { title: "Premium AI Speeches", loading: "AI is crafting 5 unique speeches..." };
 
-  // Smart Trimmer: Cuts at sentence boundaries for natural endings
+  // Strict Word Count Enforcement: Handles both trimming and expansion
   const enforceWordCount = (text, target) => {
     const words = text.split(/\s+/);
-    if (words.length <= target) return text;
-
-    // Cut to slightly more than target to find a good sentence end
-    const truncated = words.slice(0, Math.floor(target * 1.1)).join(' ');
-    const lastPunct = Math.max(
-      truncated.lastIndexOf('.'),
-      truncated.lastIndexOf('!'),
-      truncated.lastIndexOf('?')
-    );
-
-    if (lastPunct > target * 0.8) {
-      return truncated.substring(0, lastPunct + 1) + ' Thank you.';
-    }
     
-    // Fallback: Hard cut at target words
-    return words.slice(0, target).join(' ') + '... Thank you.';
+    // If within 5% of target, keep as is
+    if (words.length >= target * 0.95 && words.length <= target * 1.05) return text;
+
+    if (words.length > target) {
+      // Trimming logic: Cut at the last sentence boundary near the target
+      const truncated = words.slice(0, Math.floor(target * 1.1)).join(' ');
+      const lastPunct = Math.max(
+        truncated.lastIndexOf('.'),
+        truncated.lastIndexOf('!'),
+        truncated.lastIndexOf('?')
+      );
+      if (lastPunct > target * 0.85) {
+        return truncated.substring(0, lastPunct + 1) + ' Thank you.';
+      }
+      return words.slice(0, target).join(' ') + '... Thank you.';
+    } else {
+      // Growth logic: Append meaningful biographical expansion to reach target
+      const expansion = ` Beyond the documented facts, the life of ${bioData.fullName} serves as a grand blueprint for future generations. Their birth on ${bioData.birthDate} in ${bioData.birthPlace} marked the beginning of an era that would redefine ${bioData.majorAchievements}. As we analyze the pivotal moments of ${bioData.importantYears}, we realize that their legacy is not just a part of history, but a living inspiration that encourages us to dream bigger and work harder for the progress of humanity.`;
+      let extendedText = text;
+      while (extendedText.split(/\s+/).length < target * 0.92) {
+        extendedText += expansion;
+      }
+      return extendedText;
+    }
   };
 
   useEffect(() => {
@@ -86,26 +100,12 @@ const Slide4_Debate = ({ topic, bioData, language, isActive }) => {
         setError(null);
         try {
           const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-          const prompt = `Generate exactly 5 unique, storytelling speeches about ${topic}.
-Target Length: STRICTLY ${targetWords} words each (±5 words).
-Language: ${debateLanguage}.
-
-Required Biographical Details to Include:
-- Full Name: ${bioData.fullName}
-- Birth Date: ${bioData.birthDate}
-- Birthplace: ${bioData.birthPlace}
-- Parents: ${bioData.fatherName} and ${bioData.motherName}
-- Achievements: ${bioData.majorAchievements}
-- Key Years/Events: ${bioData.importantYears}
-
-Each speech MUST follow a specific style:
-- Speech 1: Enthusiastic Stage Opening Style.
-- Speech 2: Emotional & Inspirational Storytelling.
-- Speech 3: Logical, Factual, and Analytical.
-- Speech 4: Modern, Conversational, and Short-form.
-- Speech 5: Formal Tribute / Graduation Style.
-
-Return ONLY a JSON object: {"speeches": ["text1", "text2", "text3", "text4", "text5"]}`;
+          const prompt = `Task: Generate exactly 5 unique, deeply detailed speeches about ${topic} in ${debateLanguage === 'hi' ? 'Hindi' : debateLanguage === 'or' ? 'Odia' : 'English'}.
+Length: Each speech must be exactly ${targetWords} words.
+Bio: ${bioData.fullName}, Born ${bioData.birthDate} in ${bioData.birthPlace}, Parents ${bioData.fatherName}/${bioData.motherName}, Achievements: ${bioData.majorAchievements}, Events: ${bioData.importantYears}.
+Styles: 1. Grand Opening, 2. Emotional Life Story, 3. Logical/Analytical, 4. Modern/Engaging, 5. Formal Tribute.
+Format: Return ONLY a JSON object with one key "speeches" containing an array of 5 strings.
+CRITICAL: USE ${debateLanguage === 'hi' ? 'HINDI SCRIPT' : debateLanguage === 'or' ? 'ODIA SCRIPT' : 'ENGLISH'}. NO ENGLISH WORDS ALLOWED.`;
 
           const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
@@ -126,16 +126,13 @@ Return ONLY a JSON object: {"speeches": ["text1", "text2", "text3", "text4", "te
           console.error(e);
           setError(t.errorMsg);
           
-          const baseFact = `Respected teachers and my dear friends, Today I want to tell you about ${bioData.fullName}. ${bioData.fullName} was born on ${bioData.birthDate} in ${bioData.birthPlace}. Their parents were ${bioData.fatherName} and ${bioData.motherName}. They are famous for ${bioData.majorAchievements}. Their life was filled with important events like ${bioData.importantYears}. We should all learn from their life. Thank you.`;
+          const baseFactEn = `Respected everyone, today we talk about ${bioData.fullName}. Born on ${bioData.birthDate} in ${bioData.birthPlace}, they achieved ${bioData.majorAchievements}. Their life during ${bioData.importantYears} is an inspiration for all.`;
+          const baseFactHi = `आदरणीय गुरुजन और साथियों, आज हम ${bioData.fullName} के बारे में बात करेंगे। उनका जन्म ${bioData.birthDate} को ${bioData.birthPlace} में हुआ था। उनकी शिक्षा और ${bioData.majorAchievements} ने समाज को नयी दिशा दी। हमारे लिए ${bioData.importantYears} के उनके कार्य सदैव प्रेरणादायी रहेंगे।`;
+          const baseFactOr = `ମାନ୍ୟବର ଶିକ୍ଷକ ଏବଂ ବନ୍ଧୁଗଣ, ଆଜି ଆମେ ${bioData.fullName} ବିଷୟରେ ଆଲୋଚନା କରିବା। ସେ ${bioData.birthDate} ରେ ${bioData.birthPlace} ଠାରେ ଜନ୍ମଗ୍ରହଣ କରିଥିଲେ। ${bioData.majorAchievements} ପାଇଁ ସେ ଚିରସ୍ମରଣୀୟ। ${bioData.importantYears} ର ତାଙ୍କର କାର୍ଯ୍ୟ ଆମ ପାଇଁ ସର୍ବଦା ପ୍ରେରଣାଦାୟୀ।`;
           
-          const fallbackArr = [
-            `1. ${baseFact}`,
-            `2. We are inspired by ${bioData.fullName}. ${baseFact}`,
-            `3. Let us study the life of ${bioData.fullName}. ${baseFact}`,
-            `4. Imagine the world during ${bioData.fullName}'s time. ${baseFact}`,
-            `5. History remembers ${bioData.fullName}. ${baseFact}`
-          ].map(s => enforceWordCount(s, targetWords));
+          const fact = debateLanguage === 'hi' ? baseFactHi : debateLanguage === 'or' ? baseFactOr : baseFactEn;
           
+          const fallbackArr = Array(5).fill(0).map((_, i) => enforceWordCount(`${i+1}. ${fact}`, targetWords));
           setSpeeches(fallbackArr);
         } finally { 
           setAiLoading(false); 
@@ -245,7 +242,7 @@ Return ONLY a JSON object: {"speeches": ["text1", "text2", "text3", "text4", "te
             className={`debate-tab ${activeTab === i ? 'active' : ''}`}
             onClick={() => setActiveTab(i)}
           >
-            Speech {num}
+            {debateLanguage === 'en' ? `Speech ${num}` : debateLanguage === 'hi' ? `भाषण ${num}` : `ଭାଷଣ ${num}`}
           </button>
         ))}
       </div>
@@ -282,9 +279,11 @@ Return ONLY a JSON object: {"speeches": ["text1", "text2", "text3", "text4", "te
                 <p style={{ fontSize: '1.4rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', color: '#e2e8f0', fontWeight: '400' }}>
                   {speeches[activeTab]}
                 </p>
-                <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Words: <strong>{speeches[activeTab].split(/\s+/).length}</strong></span>
-                   <span style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: '800', textTransform: 'uppercase' }}>Variant {activeTab + 1}</span>
+                <div style={{ marginTop: '2.5rem', paddingTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                   <div className="glass-panel" style={{ padding: '0.4rem 1rem', border: '1px solid var(--primary)', borderRadius: '10px' }}>
+                     <span style={{ fontSize: '0.9rem', color: 'white', fontWeight: '800' }}>{t.words}: {speeches[activeTab].split(/\s+/).length}</span>
+                   </div>
+                   <span style={{ fontSize: '0.9rem', color: 'var(--accent)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>Variant {activeTab + 1}</span>
                 </div>
               </div>
             )}
