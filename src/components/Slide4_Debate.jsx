@@ -61,33 +61,38 @@ const Slide4_Debate = ({ topic, bioData, language, isActive }) => {
       errorMsg: "ଭାଷଣ ପ୍ରସ୍ତୁତ କରାଯାଇପାରିଲା ନାହିଁ। ବ୍ୟାକଅପ୍ ଜ୍ଞାନ ବ୍ୟବହାର କରାଯାଉଛି...",
       instruction: "ପାଇଁ ପ୍ରସ୍ତୁତ: "
     }
-  }[debateLanguage] || { title: "Premium AI Speeches", loading: "AI is crafting 5 unique speeches..." };
+  }[debateLanguage] || { title: "Premium AI Speeches", loading: "Generating 5 Professional Speeches..." };
 
   // Strict Word Count Enforcement: Handles both trimming and expansion
   const enforceWordCount = (text, target) => {
-    const words = text.split(/\s+/);
+    if (!text) return "";
+    let words = text.trim().split(/\s+/);
     
-    // If within 5% of target, keep as is
-    if (words.length >= target * 0.95 && words.length <= target * 1.05) return text;
+    // Hindi/Odia word split check (sometimes space is missing or punctuation is different)
+    if (debateLanguage !== 'en') {
+        const charCount = text.length;
+        const estWords = Math.ceil(charCount / 5); // Rough estimate for Indic languages if split fails
+        if (words.length < estWords * 0.5) {
+            // If word count is suspiciously low, Indic script might be joined
+            words = text.match(/[\u0900-\u097F\u0B00-\u0B7F\w]+/g) || words;
+        }
+    }
+
+    if (words.length >= target * 0.98 && words.length <= target * 1.05) return text;
 
     if (words.length > target) {
-      // Trimming logic: Cut at the last sentence boundary near the target
-      const truncated = words.slice(0, Math.floor(target * 1.1)).join(' ');
-      const lastPunct = Math.max(
-        truncated.lastIndexOf('.'),
-        truncated.lastIndexOf('!'),
-        truncated.lastIndexOf('?')
-      );
-      if (lastPunct > target * 0.85) {
-        return truncated.substring(0, lastPunct + 1) + ' Thank you.';
-      }
-      return words.slice(0, target).join(' ') + '... Thank you.';
+      const truncated = words.slice(0, target).join(' ');
+      return truncated + (debateLanguage === 'en' ? ' Thank you.' : debateLanguage === 'hi' ? ' धन्यवाद।' : ' ଧନ୍ୟବାଦ |');
     } else {
-      // Growth logic: Append meaningful biographical expansion to reach target
-      const expansion = ` Beyond the documented facts, the life of ${bioData.fullName} serves as a grand blueprint for future generations. Their birth on ${bioData.birthDate} in ${bioData.birthPlace} marked the beginning of an era that would redefine ${bioData.majorAchievements}. As we analyze the pivotal moments of ${bioData.importantYears}, we realize that their legacy is not just a part of history, but a living inspiration that encourages us to dream bigger and work harder for the progress of humanity.`;
+      const expansion = debateLanguage === 'en' 
+        ? ` In addition to these facts, the legacy of ${bioData.fullName} continues to resonate deeply in our hearts. Their journey from ${bioData.birthPlace} to achieving ${bioData.majorAchievements} is a testament to human resilience and brilliance. We must look at the events of ${bioData.importantYears} as a guiding light for our own future endeavors.`
+        : debateLanguage === 'hi' 
+        ? ` इसके अतिरिक्त, ${bioData.fullName} की विरासत हमारे दिलों में गहराई से गूंजती रहती है। ${bioData.birthPlace} से लेकर ${bioData.majorAchievements} को प्राप्त करने तक की उनकी यात्रा मानवीय लचीलापन और प्रतिभा का प्रमाण है। हमें ${bioData.importantYears} की घटनाओं को अपने भविष्य के प्रयासों के लिए एक मार्गदर्शक प्रकाश के रूप में देखना चाहिए।`
+        : ` ଏହା ବ୍ୟତୀତ, ${bioData.fullName} ଙ୍କର ଐତିହ୍ୟ ଆମ ହୃଦୟରେ ଗଭୀର ଭାବରେ ପ୍ରତିଧ୍ୱନିତ ହେବା ଜାରି ରଖିଛି | ${bioData.birthPlace} ରୁ ${bioData.majorAchievements} ହାସଲ କରିବା ପର୍ଯ୍ୟନ୍ତ ସେମାନଙ୍କର ଯାତ୍ରା ମାନବିକ ସହନଶୀଳତା ଏବଂ ପ୍ରତିଭାର ଏକ ପ୍ରମାଣ | ଆମେ ${bioData.importantYears} ର ଘଟଣାଗୁଡ଼ିକୁ ଆମର ନିଜସ୍ୱ ଭବିଷ୍ୟତ ପ୍ରୟାସ ପାଇଁ ଏକ ମାର୍ଗଦର୍ଶକ ଆଲୋକ ଭାବରେ ଦେଖିବା ଜରୁରୀ |`;
+      
       let extendedText = text;
-      while (extendedText.split(/\s+/).length < target * 0.92) {
-        extendedText += expansion;
+      while (extendedText.split(/\s+/).length < target * 0.95) {
+        extendedText += " " + expansion;
       }
       return extendedText;
     }
@@ -95,17 +100,17 @@ const Slide4_Debate = ({ topic, bioData, language, isActive }) => {
 
   useEffect(() => {
     if (isActive && topic && bioData) {
-      const fetchSpeeches = async () => {
+      const fetchSpeeches = async (retryCount = 0) => {
         setAiLoading(true);
         setError(null);
         try {
           const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-          const prompt = `Task: Generate exactly 5 unique, deeply detailed speeches about ${topic} in ${debateLanguage === 'hi' ? 'Hindi' : debateLanguage === 'or' ? 'Odia' : 'English'}.
-Length: Each speech must be exactly ${targetWords} words.
-Bio: ${bioData.fullName}, Born ${bioData.birthDate} in ${bioData.birthPlace}, Parents ${bioData.fatherName}/${bioData.motherName}, Achievements: ${bioData.majorAchievements}, Events: ${bioData.importantYears}.
-Styles: 1. Grand Opening, 2. Emotional Life Story, 3. Logical/Analytical, 4. Modern/Engaging, 5. Formal Tribute.
-Format: Return ONLY a JSON object with one key "speeches" containing an array of 5 strings.
-CRITICAL: USE ${debateLanguage === 'hi' ? 'HINDI SCRIPT' : debateLanguage === 'or' ? 'ODIA SCRIPT' : 'ENGLISH'}. NO ENGLISH WORDS ALLOWED.`;
+          const prompt = `Generate exactly 5 unique speeches about ${topic}.
+Language: ${debateLanguage === 'hi' ? 'Hindi (Devanagari Script)' : debateLanguage === 'or' ? 'Odia (Odia Script)' : 'English'}.
+Length: Exactly ${targetWords} words EACH.
+Context: ${bioData.fullName}, born ${bioData.birthDate} in ${bioData.birthPlace}. Achievement: ${bioData.majorAchievements}. Key Year: ${bioData.importantYears}.
+Format: Return ONLY valid JSON: {"speeches": ["text1", "text2", "text3", "text4", "text5"]}
+CRITICAL: ALL text MUST be in the requested language script. No mixing languages.`;
 
           const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
@@ -116,23 +121,39 @@ CRITICAL: USE ${debateLanguage === 'hi' ? 'HINDI SCRIPT' : debateLanguage === 'o
             })
           });
           
-          if (!res.ok) throw new Error('API request failed');
+          if (!res.ok) throw new Error('Network error');
           
           const data = await res.json();
-          const parsed = JSON.parse(data.candidates[0].content.parts[0].text);
-          const processed = parsed.speeches.map(s => enforceWordCount(s, targetWords));
+          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!rawText) throw new Error('Empty response');
+          
+          const parsed = JSON.parse(rawText);
+          if (!parsed.speeches || parsed.speeches.length < 5) throw new Error('Incomplete JSON');
+          
+          // Validate and enforce word count
+          const processed = parsed.speeches.map(s => {
+            if (!s || s.trim().length < 10) throw new Error('Empty speech variant');
+            return enforceWordCount(s, targetWords);
+          });
+          
           setSpeeches(processed);
         } catch (e) {
-          console.error(e);
+          console.error(`Attempt ${retryCount + 1} failed:`, e);
+          if (retryCount < 2) {
+             console.log("Retrying speech generation...");
+             return fetchSpeeches(retryCount + 1);
+          }
           setError(t.errorMsg);
           
-          const baseFactEn = `Respected everyone, today we talk about ${bioData.fullName}. Born on ${bioData.birthDate} in ${bioData.birthPlace}, they achieved ${bioData.majorAchievements}. Their life during ${bioData.importantYears} is an inspiration for all.`;
-          const baseFactHi = `आदरणीय गुरुजन और साथियों, आज हम ${bioData.fullName} के बारे में बात करेंगे। उनका जन्म ${bioData.birthDate} को ${bioData.birthPlace} में हुआ था। उनकी शिक्षा और ${bioData.majorAchievements} ने समाज को नयी दिशा दी। हमारे लिए ${bioData.importantYears} के उनके कार्य सदैव प्रेरणादायी रहेंगे।`;
-          const baseFactOr = `ମାନ୍ୟବର ଶିକ୍ଷକ ଏବଂ ବନ୍ଧୁଗଣ, ଆଜି ଆମେ ${bioData.fullName} ବିଷୟରେ ଆଲୋଚନା କରିବା। ସେ ${bioData.birthDate} ରେ ${bioData.birthPlace} ଠାରେ ଜନ୍ମଗ୍ରହଣ କରିଥିଲେ। ${bioData.majorAchievements} ପାଇଁ ସେ ଚିରସ୍ମରଣୀୟ। ${bioData.importantYears} ର ତାଙ୍କର କାର୍ଯ୍ୟ ଆମ ପାଇଁ ସର୍ବଦା ପ୍ରେରଣାଦାୟୀ।`;
+          // Translated Fallback Strategy
+          const factTemplates = {
+            en: `Respected everyone, the journey of ${bioData.fullName} from ${bioData.birthPlace} is legendary. Their ${bioData.majorAchievements} during ${bioData.importantYears} changed history.`,
+            hi: `आदरणीय उपस्थित महानुभावों, ${bioData.birthPlace} में जन्मे ${bioData.fullName} का जीवन अनुकरणीय है। ${bioData.importantYears} के दौरान उनकी ${bioData.majorAchievements} ने हमें गौरवान्वित किया।`,
+            or: `ସମସ୍ତଙ୍କୁ ମୋର ସମ୍ମାନ, ${bioData.birthPlace} ରେ ଜନ୍ମିତ ${bioData.fullName} ଙ୍କ ଜୀବନ ଯାତ୍ରା ଅତ୍ୟନ୍ତ ପ୍ରେରଣାଦାୟୀ | ${bioData.importantYears} ମସିହାରେ ସେମାନଙ୍କର ${bioData.majorAchievements} ଇତିହାସ ବଦଳାଇ ଦେଇଥିଲା |`
+          };
           
-          const fact = debateLanguage === 'hi' ? baseFactHi : debateLanguage === 'or' ? baseFactOr : baseFactEn;
-          
-          const fallbackArr = Array(5).fill(0).map((_, i) => enforceWordCount(`${i+1}. ${fact}`, targetWords));
+          const base = factTemplates[debateLanguage] || factTemplates.en;
+          const fallbackArr = Array(5).fill(0).map((_, i) => enforceWordCount(`${i+1}. ${base}`, targetWords));
           setSpeeches(fallbackArr);
         } finally { 
           setAiLoading(false); 
@@ -256,7 +277,12 @@ CRITICAL: USE ${debateLanguage === 'hi' ? 'HINDI SCRIPT' : debateLanguage === 'o
           </div>
         ) : (
           <div className="animate-fade-in" style={{ padding: '1rem' }}>
-            {error && <p style={{ color: '#ef4444', textAlign: 'center', marginBottom: '2rem' }}>{error}</p>}
+            {error && (
+              <div style={{ textAlign: 'center', padding: '2rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '20px', border: '1px solid #ef4444', marginBottom: '2rem' }}>
+                <p style={{ color: '#ef4444', marginBottom: '1.5rem', fontWeight: '700' }}>{error}</p>
+                <button className="btn-ghost" onClick={() => fetchSpeeches()}>🔄 Retry Generation</button>
+              </div>
+            )}
             
             {speeches[activeTab] && (
               <div 

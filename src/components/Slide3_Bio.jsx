@@ -107,27 +107,43 @@ const Slide3_Bio = ({ topic, bioData, language, isActive, onNext }) => {
 
         {/* Video Section */}
         <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', height: '100%', background: 'rgba(255,255,255,0.01)' }}>
-          <h3 style={{ marginBottom: '1.5rem', fontSize: '1.4rem', fontWeight: '700' }}>🎬 {t.documentary}</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: '700' }}>🎬 {t.documentary}</h3>
+            {videoId && (
+              <button 
+                onClick={() => window.open(`https://www.youtube.com/watch?v=${videoId}`, '_blank')}
+                className="btn-ghost"
+                style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', borderRadius: '10px' }}
+              >
+                {t.watchOnYoutube} ↗
+              </button>
+            )}
+          </div>
           
-          <div style={{ flex: 1, minHeight: '350px', background: '#000', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', position: 'relative' }}>
-            {videoId ? (
+          <div style={{ flex: 1, minHeight: '380px', background: '#000', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 15px 40px rgba(0,0,0,0.4)', position: 'relative', border: '1px solid var(--glass-border)' }}>
+            {videoLoading ? (
+              <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="spinner"></div>
+                <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Finding documentary...</p>
+              </div>
+            ) : videoId ? (
               <iframe
-                title="Google Video Player"
-                src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`}
+                title="YouTube Video Player"
+                src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`}
                 style={{ width: '100%', height: '100%', border: 'none' }}
-                allow="autoplay; encrypted-media"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
             ) : (
               <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', textAlign: 'center' }}>
-                <div style={{ fontSize: '4rem', marginBottom: '1rem', opacity: 0.3 }}>📺</div>
-                <p style={{ marginBottom: '1.5rem', opacity: 0.7 }}>{t.noVideo}</p>
+                <div style={{ fontSize: '4rem', marginBottom: '1rem', opacity: 0.2 }}>📺</div>
+                <p style={{ marginBottom: '1.5rem', opacity: 0.6 }}>{t.noVideo}</p>
                 <button 
                   onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(topic + ' documentary')}`, '_blank')} 
-                  className="btn-ghost"
-                  style={{ textDecoration: 'none', display: 'inline-block' }}
+                  className="btn-primary"
+                  style={{ padding: '0.8rem 1.5rem', fontSize: '1rem' }}
                 >
-                  Search on YouTube ↗
+                  {t.searchHint}
                 </button>
               </div>
             )}

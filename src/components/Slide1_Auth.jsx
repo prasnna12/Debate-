@@ -44,18 +44,35 @@ const Slide1_Auth = ({ language, onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = () => {
-    // Mock Google Login
-    onLogin({ email: 'google.user@gmail.com', name: 'Google User', isGoogle: true });
+    setLoading(true);
+    setTimeout(() => {
+      onLogin({ email: 'google.user@gmail.com', name: 'Google User', isGoogle: true });
+      setLoading(false);
+    }, 1500);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email && password) {
-      onLogin({ email });
+      setLoading(true);
+      setTimeout(() => {
+        onLogin({ email });
+        setLoading(false);
+      }, 1500);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="premium-card" style={{ textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="spinner"></div>
+        <p className="text-gradient" style={{ marginTop: '2rem', fontWeight: '800', fontSize: '1.2rem' }}>Authenticating...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="premium-card" style={{ textAlign: 'center' }}>

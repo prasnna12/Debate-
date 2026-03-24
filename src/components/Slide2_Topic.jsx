@@ -140,9 +140,10 @@ const Slide2_Topic = ({ language, onGenerate }) => {
       <p style={{ textAlign: 'center', marginBottom: '4rem', fontSize: '1.1rem', fontWeight: '500' }}>{t.subtitle}</p>
 
       {loading ? (
-        <div className="loading-overlay" style={{ minHeight: '350px' }}>
+        <div className="loading-overlay" style={{ minHeight: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           <div className="spinner"></div>
-          <p style={{ fontWeight: '800', fontSize: '1.2rem', letterSpacing: '1px' }} className="text-gradient">{t.loading}</p>
+          <p style={{ fontWeight: '800', fontSize: '1.2rem', letterSpacing: '1px', marginTop: '2rem' }} className="text-gradient">{t.loading}</p>
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>This may take a few seconds...</p>
         </div>
       ) : (
         <>
