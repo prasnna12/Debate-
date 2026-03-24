@@ -166,13 +166,20 @@ const Slide4_Debate = ({ topic, bioData, language, isActive }) => {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       
       const targetScript = debateLanguage === 'hi' ? 'HINDI (DEVANAGARI SCRIPT)' : debateLanguage === 'or' ? 'ODIA (ODIA SCRIPT)' : 'ENGLISH';
-      const prompt = `Generate exactly 5 unique speeches about ${topic}.
+      const prompt = `Act as an Elite Speech Writer. Generate exactly 5 distinct, high-impact debate speeches about ${topic}.
 Language: ${targetScript}.
-Length: Each speech MUST be exactly ${targetWords} words.
+Target Length: Each speech MUST be exactly ${targetWords} words.
 Context: ${localizedBio.fullName}, ${localizedBio.majorAchievements}.
+
+Speech Varieties:
+1. PERSUASIVE: Focus on emotional appeal and vision.
+2. ANALYTICAL: Focus on facts, logic, and historical impact.
+3. AGGRESSIVE: Focus on countering opposition and strong rhetoric.
+4. INSPIRATIONAL: Focus on the legacy and future generations.
+5. SUMMARY: A concise yet powerful synthesis of their life's work.
+
 CRITICAL: Use ONLY ${targetScript}. 
 DO NOT USE A SINGLE ENGLISH WORD. EXCLUSIVELY NATIVE SCRIPT.
-IF AN ENGLISH WORD IS USED, THE OUTPUT IS REJECTED.
 Format: Return ONLY valid JSON: {"speeches": ["text1", "text2", "text3", "text4", "text5"]}`;
 
       const res = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -289,44 +296,46 @@ Format: Return ONLY valid JSON: {"speeches": ["text1", "text2", "text3", "text4"
   return (
     <div className="premium-card animate-scale-in" style={{ maxWidth: '1200px', background: 'rgba(15, 23, 42, 0.8)' }}>
       {/* Header Section */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4rem', flexWrap: 'wrap', gap: '2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '3rem' }}>
         <div>
-          <h2 className="text-gradient" style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>{t.title}</h2>
-          <p style={{ fontSize: '1.1rem' }}>{t.instruction}<strong style={{ color: 'var(--primary)' }}>{topic}</strong></p>
+          <h2 className="text-gradient" style={{ fontSize: '3.5rem', marginBottom: '0.5rem', letterSpacing: '-2px' }}>{t.title}</h2>
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}>{t.instruction}<strong style={{ color: 'white', marginLeft: '0.5rem' }}>{topic}</strong></p>
         </div>
         
         <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Language Selector */}
-          <div className="glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--accent)', textTransform: 'uppercase' }}>{t.selectLang}</span>
+          <div className="glass-panel" style={{ padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(0,0,0,0.3)', borderRadius: '15px' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '2px' }}>{t.selectLang}</span>
             <select 
               value={debateLanguage} 
               onChange={(e) => setDebateLanguage(e.target.value)}
               className="input-modern"
-              style={{ padding: '0.5rem', border: 'none', background: 'transparent', width: 'auto', fontSize: '0.95rem', fontWeight: '800' }}
+              style={{ padding: '0.4rem', border: 'none', background: 'transparent', width: 'auto', fontSize: '1rem', fontWeight: '800', cursor: 'pointer' }}
             >
-              <option value="en" style={{ color: 'black' }}>EN</option>
-              <option value="hi" style={{ color: 'black' }}>HI</option>
-              <option value="or" style={{ color: 'black' }}>OR</option>
+              <option value="en" style={{ color: 'black' }}>ENGLISH</option>
+              <option value="hi" style={{ color: 'black' }}>HINDI</option>
+              <option value="or" style={{ color: 'black' }}>ODIA</option>
             </select>
           </div>
 
           {/* Word Count Selector */}
-          <div className="glass-panel" style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: '900', color: 'var(--accent)', textTransform: 'uppercase', marginRight: '0.5rem' }}>{t.words}</span>
+          <div className="glass-panel" style={{ padding: '0.6rem 1.2rem', display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'rgba(0,0,0,0.3)', borderRadius: '15px' }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '2px', marginRight: '0.5rem' }}>{t.words}</span>
             {[100, 250, 500].map(w => (
               <button 
                 key={w} 
                 onClick={() => setTargetWords(w)}
                 style={{ 
-                  background: targetWords === w ? 'var(--primary)' : 'rgba(255,255,255,0.05)',
+                  background: targetWords === w ? 'var(--grad-btn)' : 'rgba(255,255,255,0.03)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '10px',
-                  padding: '0.4rem 0.8rem',
+                  padding: '0.5rem 1rem',
                   cursor: 'pointer',
                   fontWeight: '800',
-                  fontSize: '0.85rem'
+                  fontSize: '0.9rem',
+                  transition: 'var(--transition)',
+                  boxShadow: targetWords === w ? '0 5px 15px rgba(59, 130, 246, 0.3)' : 'none'
                 }}
               >
                 {w}
@@ -334,7 +343,7 @@ Format: Return ONLY valid JSON: {"speeches": ["text1", "text2", "text3", "text4"
             ))}
           </div>
 
-          <button className="btn-primary" onClick={handleStageEnter} style={{ padding: '1rem 2rem' }}>
+          <button className="btn-primary" onClick={handleStageEnter} style={{ padding: '1.1rem 2.5rem', borderRadius: '20px' }}>
             🎬 {t.stageMode}
           </button>
         </div>
@@ -387,14 +396,21 @@ Format: Return ONLY valid JSON: {"speeches": ["text1", "text2", "text3", "text4"
                     {isSpeaking ? '⏹' : '🔊'}
                   </button>
                 </div>
-                <p style={{ fontSize: '1.4rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', color: '#e2e8f0', fontWeight: '400' }}>
+                <p style={{ fontSize: '1.5rem', lineHeight: '1.8', whiteSpace: 'pre-wrap', color: '#f1f5f9', fontWeight: '400', letterSpacing: '0.2px' }}>
                   {speeches[activeTab]}
                 </p>
-                <div style={{ marginTop: '2.5rem', paddingTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                   <div className="glass-panel" style={{ padding: '0.4rem 1rem', border: '1px solid var(--primary)', borderRadius: '10px' }}>
-                     <span style={{ fontSize: '0.9rem', color: 'white', fontWeight: '800' }}>{t.words}: {speeches[activeTab].split(/\s+/).length}</span>
+                <div style={{ marginTop: '3rem', paddingTop: '2.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                   <div style={{ display: 'flex', gap: '1rem' }}>
+                        <div className="glass-panel" style={{ padding: '0.5rem 1.2rem', background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '12px' }}>
+                            <span style={{ fontSize: '0.85rem', color: 'white', fontWeight: '800' }}>{t.words}: {speeches[activeTab].split(/\s+/).length}</span>
+                        </div>
                    </div>
-                   <span style={{ fontSize: '0.9rem', color: 'var(--accent)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '2px' }}>Variant {activeTab + 1}</span>
+                   <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--accent)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '3px', display: 'block', marginBottom: '0.3rem' }}>Variant {activeTab + 1}</span>
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: '700' }}>
+                            {['Persuasive', 'Analytical', 'Aggressive', 'Inspirational', 'Summary'][activeTab]}
+                        </span>
+                   </div>
                 </div>
               </div>
             )}
@@ -431,16 +447,16 @@ Format: Return ONLY valid JSON: {"speeches": ["text1", "text2", "text3", "text4"
               {isSpeaking ? `⏹ ${t.stop}` : `🔊 ${t.listen}`}
             </button>
           </div>
-          <div className="teleprompter-track" onScroll={(e) => {
+          <div className="teleprompter-track" style={{ maskImage: 'linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)' }} onScroll={(e) => {
             const current = e.target.scrollTop;
             const total = e.target.scrollHeight - e.target.clientHeight;
             setScrollPos((current / total) * 100);
           }}>
             <div className="teleprompter-content">
-              <p style={{ fontSize: '4.5rem', lineHeight: '1.4', fontWeight: '800', textAlign: 'center', whiteSpace: 'pre-wrap' }}>
+              <p style={{ fontSize: '5rem', lineHeight: '1.5', fontWeight: '800', textAlign: 'center', whiteSpace: 'pre-wrap', color: 'white', textShadow: '0 10px 30px rgba(0,0,0,1)' }}>
                 {speeches[activeTab]}
               </p>
-              <div style={{ height: '80vh' }}></div>
+              <div style={{ height: '90vh' }}></div>
             </div>
           </div>
         </div>

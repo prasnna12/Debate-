@@ -146,43 +146,105 @@ const Slide2_Topic = ({ language, onGenerate }) => {
   };
 
   return (
-    <div className="premium-card" style={{ maxWidth: '850px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '1.5rem', letterSpacing: '-0.5px' }} className="text-gradient">{t.title}</h2>
-      <p style={{ textAlign: 'center', marginBottom: '4rem', fontSize: '1.1rem', fontWeight: '500' }}>{t.subtitle}</p>
+    <div className="premium-card animate-scale-in" style={{ 
+      maxWidth: '950px', 
+      margin: '0 auto', 
+      padding: '5rem 4rem',
+      textAlign: 'center',
+      background: 'rgba(15, 23, 42, 0.9)'
+    }}>
+      <div className="animate-fade-in">
+        <h2 style={{ fontSize: '3.5rem', marginBottom: '1rem', letterSpacing: '-1.5px' }} className="text-gradient">
+          {t.title}
+        </h2>
+        <p style={{ marginBottom: '5rem', fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: '500' }}>
+          {t.subtitle}
+        </p>
+      </div>
 
       {loading ? (
         <div className="loading-overlay" style={{ minHeight: '350px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="spinner"></div>
-          <p style={{ fontWeight: '800', fontSize: '1.2rem', letterSpacing: '1px', marginTop: '2rem' }} className="text-gradient">{t.loading}</p>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>This may take a few seconds...</p>
+          <div className="spinner" style={{ width: '60px', height: '60px', borderWidth: '5px' }}></div>
+          <p style={{ fontWeight: '900', fontSize: '1.5rem', letterSpacing: '2px', marginTop: '3rem' }} className="text-gradient">{t.loading}</p>
+          <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem' }}>
+             {[1,2,3].map(i => <div key={i} className="spinner" style={{ width: '8px', height: '8px', animationDelay: `${i*0.2}s` }}></div>)}
+          </div>
         </div>
       ) : (
         <>
-          <div className="search-wrapper" style={{ margin: '0 auto 3.5rem', maxWidth: '650px' }}>
+          <div className="search-container animate-scale-in" style={{ position: 'relative', maxWidth: '700px', margin: '0 auto 4rem' }}>
+            <div style={{ position: 'absolute', left: '2rem', top: '50%', transform: 'translateY(-50%)', fontSize: '1.5rem', opacity: 0.5 }}>🔍</div>
             <input 
               type="text" 
               className="input-modern"
-              style={{ textAlign: 'center', fontSize: '1.3rem', padding: '1.6rem', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ 
+                textAlign: 'left', 
+                fontSize: '1.4rem', 
+                padding: '1.8rem 2rem 1.8rem 4.5rem', 
+                borderRadius: '24px',
+                background: 'rgba(0,0,0,0.4)',
+                border: '2px solid rgba(255,255,255,0.05)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
+              }}
               placeholder={t.placeholder}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleGenerate()}
             />
+            <button 
+                onClick={handleGenerate}
+                style={{ 
+                    position: 'absolute', 
+                    right: '1rem', 
+                    top: '50%', 
+                    transform: 'translateY(-50%)',
+                    background: 'var(--grad-btn)',
+                    border: 'none',
+                    color: 'white',
+                    padding: '0.8rem 1.5rem',
+                    borderRadius: '16px',
+                    fontWeight: '800',
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 5px 15px rgba(59, 130, 246, 0.4)'
+                }}
+            >
+                GO ➔
+            </button>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem', justifyContent: 'center', marginBottom: '4.5rem' }}>
-            {t.suggestions.map(s => (
-              <button key={s} className="btn-ghost" onClick={() => { setTopic(s); }} style={{ padding: '0.6rem 1.4rem', fontSize: '0.9rem', borderRadius: '12px' }}>
-                {s}
-              </button>
-            ))}
+          <div style={{ marginBottom: '5rem' }}>
+            <span style={{ display: 'block', fontSize: '0.75rem', fontWeight: '900', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '2rem' }}>
+                Trending Personalities
+            </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem', justifyContent: 'center' }}>
+                {t.suggestions.map((s, idx) => (
+                <button 
+                    key={s} 
+                    className="btn-ghost animate-fade-in" 
+                    onClick={() => { setTopic(s); }} 
+                    style={{ 
+                        padding: '0.8rem 1.8rem', 
+                        fontSize: '1rem', 
+                        borderRadius: '15px',
+                        animationDelay: `${idx * 0.1}s`,
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.05)'
+                    }}
+                >
+                    {s}
+                </button>
+                ))}
+            </div>
           </div>
 
-          <button className="btn-primary" onClick={handleGenerate} style={{ width: '100%', padding: '1.2rem', fontSize: '1.2rem' }}>
-            🚀 {t.btn}
-          </button>
+          <div className="glass-panel" style={{ padding: '1.5rem', background: 'rgba(59, 130, 246, 0.05)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '20px' }}>
+             <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+                Powered by <strong style={{ color: 'var(--primary)' }}>Gemini 1.5 Flash</strong> & Wikipedia Intelligence
+             </p>
+          </div>
           
-          {error && <p className="animate-fade-in" style={{ color: '#fb7185', marginTop: '2.5rem', textAlign: 'center', fontWeight: '600', fontSize: '1rem' }}>{error}</p>}
+          {error && <p className="animate-fade-in" style={{ color: '#fb7185', marginTop: '3rem', textAlign: 'center', fontWeight: '800', fontSize: '1.1rem' }}>⚠️ {error}</p>}
         </>
       )}
     </div>
