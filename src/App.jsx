@@ -34,6 +34,7 @@ const App = () => {
   }[language] || { back: 'Back', logout: 'Logout', login: 'Login', signup: 'Sign Up' };
 
   return (
+<<<<<<< HEAD
     <div className="app-container">
       {/* Premium Navbar */}
       <nav className="navbar">
@@ -65,14 +66,57 @@ const App = () => {
                 className="btn-ghost" 
                 onClick={() => { setUser(null); setCurrentSlide(1); }} 
                 style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.85rem' }}
+=======
+    <div className="app-container animate-fade-in">
+      {/* Premium Navbar */}
+      <nav className="navbar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1 }}>
+          {currentSlide > 1 ? (
+            <button className="btn-ghost" onClick={prevSlide} style={{ padding: '0.6rem 1rem', borderRadius: '12px', fontSize: '0.9rem' }}>
+              ← {t.back}
+            </button>
+          ) : (
+            <div className="nav-logo" onClick={() => setCurrentSlide(1)}>AI Debate Pro</div>
+          )}
+        </div>
+
+        {currentSlide > 1 && (
+          <div className="nav-logo" style={{ flex: 1, textAlign: 'center' }} onClick={() => setCurrentSlide(user ? 2 : 1)}>
+            AI Debate Pro
+          </div>
+        )}
+
+        <div className="nav-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
+          {user ? (
+            <div className="glass-panel" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '1rem', 
+              padding: '0.5rem 1rem', 
+            }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--grad-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem' }}>
+                {user.isGoogle ? 'G' : user.email[0].toUpperCase()}
+              </div>
+              <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'white' }}>{user.name || user.email.split('@')[0]}</span>
+              <button 
+                className="btn-ghost" 
+                onClick={() => { setUser(null); setCurrentSlide(1); }} 
+                style={{ padding: '0.3rem 0.7rem', borderRadius: '10px', fontSize: '0.75rem', border: 'none' }}
+>>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
               >
                 {t.logout}
               </button>
             </div>
           ) : (
+<<<<<<< HEAD
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button className="btn-ghost" style={{ border: 'none', fontWeight: '800' }} onClick={() => setCurrentSlide(1)}>{t.login}</button>
               <button className="btn-primary" style={{ padding: '0.7rem 1.6rem', borderRadius: '14px', fontSize: '0.95rem' }} onClick={() => setCurrentSlide(1)}>
+=======
+            <div style={{ display: 'flex', gap: '0.8rem' }}>
+              <button className="btn-ghost" style={{ border: 'none' }} onClick={() => setCurrentSlide(1)}>{t.login}</button>
+              <button className="btn-primary" style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.85rem' }} onClick={() => setCurrentSlide(1)}>
+>>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
                 {t.signup}
               </button>
             </div>
@@ -111,6 +155,7 @@ const App = () => {
       </div>
 
       <div className="branding-footer" style={{ 
+<<<<<<< HEAD
         padding: '2.5rem', 
         textAlign: 'center', 
         fontSize: '0.85rem', 
@@ -121,6 +166,18 @@ const App = () => {
         textTransform: 'uppercase'
       }}>
         @ AI DEBATE PLATFORM 2024 • PROFESSIONAL STAGE ASSISTANT
+=======
+        padding: '3rem', 
+        textAlign: 'center', 
+        fontSize: '0.8rem', 
+        letterSpacing: '4px', 
+        fontWeight: '900', 
+        color: 'var(--text-muted)',
+        opacity: 0.4,
+        textTransform: 'uppercase'
+      }}>
+        @ AI DEBATE PLATFORM 2024 • PREMIUM STAGE ASSISTANT
+>>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
       </div>
     </div>
   );

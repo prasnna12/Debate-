@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -22,3 +23,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+=======
+node_modules/
+dist/
+.env
+.DS_Store
+*.local
+public/vite.svg
+>>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
