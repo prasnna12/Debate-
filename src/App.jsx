@@ -34,67 +34,34 @@ const App = () => {
   }[language] || { back: 'Back', logout: 'Logout', login: 'Login', signup: 'Sign Up' };
 
   return (
-<<<<<<< HEAD
-    <div className="app-container">
-      {/* Premium Navbar */}
-      <nav className="navbar">
-        <div className="nav-actions">
-          {currentSlide > 1 && (
-            <button className="btn-back-global" onClick={prevSlide} style={{ padding: '0.8rem 1.4rem' }}>
-              ← {t.back}
-            </button>
-          )}
-          <div className="nav-logo" onClick={() => setCurrentSlide(user ? 2 : 1)} style={{ marginLeft: '1rem' }}>
-            AI Debate Pro
-          </div>
-        </div>
-
-        <div className="nav-actions">
-          {user ? (
-            <div className="user-badge" style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '1rem', 
-              background: 'rgba(79, 70, 229, 0.05)', 
-              padding: '0.6rem 1.2rem', 
-              borderRadius: '16px',
-              border: '1px solid rgba(79, 70, 229, 0.1)'
-            }}>
-              <span style={{ fontSize: '1.2rem' }}>👤</span>
-              <span style={{ fontWeight: '700', color: 'var(--text-main)' }}>{user.email.split('@')[0]}</span>
-              <button 
-                className="btn-ghost" 
-                onClick={() => { setUser(null); setCurrentSlide(1); }} 
-                style={{ padding: '0.5rem 1rem', borderRadius: '12px', fontSize: '0.85rem' }}
-=======
     <div className="app-container animate-fade-in">
       {/* Premium Navbar */}
-      <nav className="navbar">
+      <nav className="premium-nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1 }}>
-          {currentSlide > 1 ? (
+          {currentSlide > 1 && (
             <button className="btn-ghost" onClick={prevSlide} style={{ padding: '0.6rem 1rem', borderRadius: '12px', fontSize: '0.9rem' }}>
               ← {t.back}
             </button>
-          ) : (
-            <div className="nav-logo" onClick={() => setCurrentSlide(1)}>AI Debate Pro</div>
           )}
+          {currentSlide === 1 && <div className="logo-brand">AI Debate Pro</div>}
         </div>
 
         {currentSlide > 1 && (
-          <div className="nav-logo" style={{ flex: 1, textAlign: 'center' }} onClick={() => setCurrentSlide(user ? 2 : 1)}>
+          <div className="logo-brand" style={{ flex: 1, justifyContent: 'center', display: 'flex' }} onClick={() => setCurrentSlide(user ? 2 : 1)}>
             AI Debate Pro
           </div>
         )}
 
-        <div className="nav-actions" style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <div className="nav-actions" style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
           {user ? (
             <div className="glass-panel" style={{ 
               display: 'flex', 
               alignItems: 'center', 
               gap: '1rem', 
               padding: '0.5rem 1rem', 
+              borderRadius: '16px'
             }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--grad-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--grad-btn)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem', color: 'white' }}>
                 {user.isGoogle ? 'G' : user.email[0].toUpperCase()}
               </div>
               <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'white' }}>{user.name || user.email.split('@')[0]}</span>
@@ -102,21 +69,14 @@ const App = () => {
                 className="btn-ghost" 
                 onClick={() => { setUser(null); setCurrentSlide(1); }} 
                 style={{ padding: '0.3rem 0.7rem', borderRadius: '10px', fontSize: '0.75rem', border: 'none' }}
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
               >
                 {t.logout}
               </button>
             </div>
           ) : (
-<<<<<<< HEAD
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button className="btn-ghost" style={{ border: 'none', fontWeight: '800' }} onClick={() => setCurrentSlide(1)}>{t.login}</button>
-              <button className="btn-primary" style={{ padding: '0.7rem 1.6rem', borderRadius: '14px', fontSize: '0.95rem' }} onClick={() => setCurrentSlide(1)}>
-=======
             <div style={{ display: 'flex', gap: '0.8rem' }}>
               <button className="btn-ghost" style={{ border: 'none' }} onClick={() => setCurrentSlide(1)}>{t.login}</button>
               <button className="btn-primary" style={{ padding: '0.6rem 1.2rem', borderRadius: '12px', fontSize: '0.85rem' }} onClick={() => setCurrentSlide(1)}>
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
                 {t.signup}
               </button>
             </div>
@@ -124,17 +84,17 @@ const App = () => {
         </div>
       </nav>
 
-      {/* Slide Container */}
-      <div className="slide-container">
-        <div className={`slide ${currentSlide === 1 ? 'active' : 'prev'}`}>
+      {/* Main Content Area */}
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        {currentSlide === 1 && (
           <Slide1_Auth onLogin={handleLogin} language={language} setLanguage={setLanguage} />
-        </div>
+        )}
 
-        <div className={`slide ${currentSlide === 2 ? 'active' : currentSlide < 2 ? '' : 'prev'}`}>
+        {currentSlide === 2 && (
           <Slide2_Topic onGenerate={handleTopicSubmit} language={language} />
-        </div>
+        )}
 
-        <div className={`slide ${currentSlide === 3 ? 'active' : currentSlide < 3 ? '' : 'prev'}`}>
+        {currentSlide === 3 && (
           <Slide3_Bio 
             topic={topic} 
             bioData={bioData} 
@@ -142,43 +102,17 @@ const App = () => {
             onNext={() => setCurrentSlide(4)} 
             language={language}
           />
-        </div>
+        )}
 
-        <div className={`slide ${currentSlide === 4 ? 'active' : currentSlide < 4 ? '' : 'prev'}`}>
+        {currentSlide === 4 && (
           <Slide4_Debate 
             topic={topic} 
             bioData={bioData} 
             isActive={currentSlide === 4}
             language={language}
           />
-        </div>
-      </div>
-
-      <div className="branding-footer" style={{ 
-<<<<<<< HEAD
-        padding: '2.5rem', 
-        textAlign: 'center', 
-        fontSize: '0.85rem', 
-        letterSpacing: '3px', 
-        fontWeight: '900', 
-        color: 'var(--text-muted)',
-        opacity: 0.6,
-        textTransform: 'uppercase'
-      }}>
-        @ AI DEBATE PLATFORM 2024 • PROFESSIONAL STAGE ASSISTANT
-=======
-        padding: '3rem', 
-        textAlign: 'center', 
-        fontSize: '0.8rem', 
-        letterSpacing: '4px', 
-        fontWeight: '900', 
-        color: 'var(--text-muted)',
-        opacity: 0.4,
-        textTransform: 'uppercase'
-      }}>
-        @ AI DEBATE PLATFORM 2024 • PREMIUM STAGE ASSISTANT
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
-      </div>
+        )}
+      </main>
     </div>
   );
 };
