@@ -86,15 +86,6 @@ const Slide2_Topic = ({ language, onGenerate }) => {
     let aiData = null;
     if (apiKey && (!wikiData || !wikiData.extract || wikiData.extract.length < 100)) {
        try {
-<<<<<<< HEAD
-         const prompt = `Provide a comprehensive JSON profile for: "${normalizedQuery}". Keys: fullName, description, birthDate, birthPlace, fatherName, motherName, importantYears, majorAchievements, summary (150 words).`;
-         const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({
-             contents: [{ parts: [{ text: prompt }] }],
-             generationConfig: { response_mime_type: "application/json" }
-=======
          const langLabel = language === 'hi' ? 'Hindi (Devanagari Script)' : language === 'or' ? 'Odia (Odia Script)' : 'English';
          const prompt = `Provide a comprehensive JSON profile for: "${normalizedQuery}" in ${langLabel}.
          CRITICAL: All values must be in ${langLabel}. No English.
@@ -109,35 +100,18 @@ const Slide2_Topic = ({ language, onGenerate }) => {
                response_mime_type: "application/json",
                temperature: 0.1 
              }
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
            })
          });
          if (res.ok) {
            const json = await res.json();
-<<<<<<< HEAD
-           aiData = JSON.parse(json.candidates[0].content.parts[0].text);
-=======
            const rawText = json.candidates[0].content.parts[0].text.replace(/```json|```/g, '').trim();
            aiData = JSON.parse(rawText);
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
          }
        } catch (e) { console.error(e); }
     }
 
     if (!wikiData && !aiData) return null;
 
-<<<<<<< HEAD
-    return {
-      fullName: aiData?.fullName || wikiData?.title || resolvedTitle,
-      summary: aiData?.summary || wikiData?.extract || '...',
-      image: wikiData?.thumbnail?.source || 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&q=80&w=300&h=400',
-      description: aiData?.description || wikiData?.description || 'Historical Inspiration',
-      birthDate: aiData?.birthDate || wikiData?.description?.match(/\d+\s\w+\s\d{4}|\b\d{4}\b/)?.[0] || 'Historical Era',
-      birthPlace: aiData?.birthPlace || 'Global Legacy',
-      fatherName: aiData?.fatherName || 'Historical Record',
-      motherName: aiData?.motherName || 'Historical Record',
-      importantYears: aiData?.importantYears || wikiData?.extract?.match(/\b(18|19|20)\d{2}\b/g)?.slice(0, 4).join(', ') || 'Various Eras',
-=======
     // Helper to ensure we don't return English names in Hindi/Odia mode if possible
     const finalName = aiData?.fullName || wikiData?.title || resolvedTitle;
 
@@ -151,7 +125,6 @@ const Slide2_Topic = ({ language, onGenerate }) => {
       fatherName: aiData?.fatherName || (language === 'hi' ? 'ऐतिहासिक रिकॉर्ड' : language === 'or' ? 'ଐତିହାସିକ ରେକର୍ଡ' : 'Historical Record'),
       motherName: aiData?.motherName || (language === 'hi' ? 'ऐतिहासिक रिकॉर्ड' : language === 'or' ? 'ଐତିହାସିକ ରେକର୍ଡ' : 'Historical Record'),
       importantYears: aiData?.importantYears || wikiData?.extract?.match(/\b(18|19|20)\d{2}\b/g)?.slice(0, 4).join(', ') || '...',
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
       majorAchievements: aiData?.majorAchievements || wikiData?.extract?.split('. ').slice(0, 3).join('. ') + '.'
     };
   };
@@ -173,24 +146,6 @@ const Slide2_Topic = ({ language, onGenerate }) => {
   };
 
   return (
-<<<<<<< HEAD
-    <div className="premium-card" style={{ maxWidth: '800px' }}>
-      <h2 style={{ textAlign: 'center', marginBottom: '1rem' }} className="text-gradient">{t.title}</h2>
-      <p style={{ textAlign: 'center', marginBottom: '3.5rem', fontSize: '1.2rem' }}>{t.subtitle}</p>
-
-      {loading ? (
-        <div className="loading-overlay" style={{ minHeight: '300px' }}>
-          <div className="spinner"></div>
-          <p style={{ fontWeight: '800', fontSize: '1.1rem' }} className="text-gradient">{t.loading}</p>
-        </div>
-      ) : (
-        <>
-          <div className="search-wrapper" style={{ margin: '0 auto 3rem', maxWidth: '600px' }}>
-            <input 
-              type="text" 
-              className="input-modern"
-              style={{ textAlign: 'center', fontSize: '1.4rem', padding: '1.8rem' }}
-=======
     <div className="premium-card animate-scale-in" style={{ 
       maxWidth: '950px', 
       margin: '0 auto', 
@@ -231,29 +186,11 @@ const Slide2_Topic = ({ language, onGenerate }) => {
                 border: '2px solid rgba(255,255,255,0.05)',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.3)'
               }}
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
               placeholder={t.placeholder}
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleGenerate()}
             />
-<<<<<<< HEAD
-          </div>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginBottom: '4rem' }}>
-            {t.suggestions.map(s => (
-              <button key={s} className="btn-ghost" onClick={() => { setTopic(s); }} style={{ padding: '0.8rem 1.6rem', fontSize: '1rem', borderRadius: '15px' }}>
-                {s}
-              </button>
-            ))}
-          </div>
-
-          <button className="btn-primary" onClick={handleGenerate} style={{ width: '100%', padding: '1.5rem', fontSize: '1.3rem', borderRadius: '22px' }}>
-            🚀 {t.btn}
-          </button>
-          
-          {error && <p style={{ color: '#ef4444', marginTop: '2rem', textAlign: 'center', fontWeight: '700', fontSize: '1.1rem' }}>{error}</p>}
-=======
             <button 
                 onClick={handleGenerate}
                 style={{ 
@@ -308,7 +245,6 @@ const Slide2_Topic = ({ language, onGenerate }) => {
           </div>
           
           {error && <p className="animate-fade-in" style={{ color: '#fb7185', marginTop: '3rem', textAlign: 'center', fontWeight: '800', fontSize: '1.1rem' }}>⚠️ {error}</p>}
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
         </>
       )}
     </div>

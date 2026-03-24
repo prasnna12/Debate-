@@ -44,8 +44,6 @@ const Slide1_Auth = ({ language, onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-<<<<<<< HEAD
-=======
   const [loading, setLoading] = useState(false);
 
   const handleGoogleLogin = () => {
@@ -55,70 +53,10 @@ const Slide1_Auth = ({ language, onLogin }) => {
       setLoading(false);
     }, 1500);
   };
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (email && password) {
-<<<<<<< HEAD
-      onLogin({ email });
-    }
-  };
-
-  return (
-    <div className="premium-card" style={{ textAlign: 'center' }}>
-      <div className="animate-fade-in">
-        <span className="text-gradient" style={{ 
-          fontSize: '0.9rem', 
-          fontWeight: '900', 
-          letterSpacing: '3px', 
-          display: 'block',
-          marginBottom: '1.5rem',
-          textTransform: 'uppercase'
-        }}>
-          {t.tagline}
-        </span>
-        <h1 style={{ marginBottom: '1.5rem' }}>{t.title}</h1>
-        <p style={{ maxWidth: '650px', margin: '0 auto 3.5rem' }}>
-          {t.description}
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} style={{ maxWidth: '420px', margin: '0 auto' }}>
-        <input 
-          type="email" 
-          className="input-modern"
-          style={{ marginBottom: '1.2rem' }}
-          placeholder={t.email} 
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input 
-          type="password" 
-          className="input-modern"
-          style={{ marginBottom: '2.5rem' }}
-          placeholder={t.password} 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit" className="btn-primary" style={{ width: '100%', padding: '1.4rem' }}>
-          {isLogin ? t.signIn : t.signUpBtn}
-        </button>
-      </form>
-
-      <p style={{ marginTop: '2.5rem' }}>
-        {isLogin ? t.noAccount : t.hasAccount}
-        <span 
-          className="text-gradient"
-          style={{ cursor: 'pointer', fontWeight: '800', marginLeft: '0.5rem' }}
-          onClick={() => setIsLogin(!isLogin)}
-        >
-          {isLogin ? t.signUpBtn : t.loginBtn}
-        </span>
-      </p>
-=======
       setLoading(true);
       setTimeout(() => {
         onLogin({ email });
@@ -237,7 +175,6 @@ const Slide1_Auth = ({ language, onLogin }) => {
           </p>
         </form>
       </div>
->>>>>>> 533a2688305e7c143872cb85e8bd3d2340392baf
     </div>
   );
 };
